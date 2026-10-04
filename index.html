@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#052e24" />
+  <title>USF Watch Party Waiting Room</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <div class="noise"></div>
+  <main class="stage">
+    <header>
+      <div class="brand"><span class="bull">♉</span><span>USF DISCORD</span></div>
+      <button id="editBtn" class="ghost">Customize character</button>
+    </header>
+    <section class="hero">
+      <p class="eyebrow">TONIGHT • 8:00 PM</p>
+      <h1>Waiting for the<br><em>event to start</em><span class="dots">...</span></h1>
+      <p class="sub">Make a little guest and hang out while everyone arrives.</p>
+      <div class="status"><i></i><span id="guestCount">1 guest is wandering around</span></div>
+    </section>
+    <div id="world" class="world" aria-label="Waiting room"></div>
+    <div class="ground">
+      <div class="hill h1"></div><div class="hill h2"></div>
+      <div class="grass"></div>
+    </div>
+  </main>
+
+  <dialog id="creator">
+    <form method="dialog" class="creator-card">
+      <button class="close" value="cancel" aria-label="Close">×</button>
+      <div class="creator-copy">
+        <span class="tiny">YOUR 1:1 CHARACTER</span>
+        <h2>Who’s waiting?</h2>
+        <p>Build a tiny pixel guest or upload a square image. It stays in your browser.</p>
+      </div>
+      <div class="editor">
+        <div class="preview-wrap"><canvas id="avatar" width="16" height="16"></canvas></div>
+        <div class="controls">
+          <label>Name <input id="name" maxlength="18" placeholder="your name" /></label>
+          <div class="row">
+            <label>Body <input id="bodyColor" type="color" value="#7c3aed" /></label>
+            <label>Accent <input id="accentColor" type="color" value="#00b388" /></label>
+          </div>
+          <div class="faces">
+            <span>Face</span>
+            <button type="button" data-face="0">•ᴗ•</button>
+            <button type="button" data-face="1">^ᴗ^</button>
+            <button type="button" data-face="2">•⩊•</button>
+            <button type="button" data-face="3">¬ᴗ¬</button>
+          </div>
+          <label class="upload">or upload a square image<input id="upload" type="file" accept="image/*" /></label>
+          <button id="joinBtn" class="primary" value="default">Join the waiting room →</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+  <script src="app.js"></script>
+</body>
+</html>
