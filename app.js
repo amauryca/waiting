@@ -1,0 +1,21 @@
+const $=s=>document.querySelector(s);
+const sky=$("#sky"),ctx=sky.getContext("2d"),world=$("#world"),dialog=$("#creator"),av=$("#avatar"),ac=av.getContext("2d");
+let face=0,uploaded=null,me=null,guests=[];
+const palette=()=>[$("#bodyColor").value,$("#accentColor").value];
+function resize(){sky.width=innerWidth*devicePixelRatio;sky.height=innerHeight*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}addEventListener("resize",resize);resize();
+const stars=Array.from({length:70},()=>({x:Math.random(),y:Math.random()*.68,r:Math.random()*1.7+.3,p:Math.random()*6.28}));
+function ambience(t){ctx.clearRect(0,0,innerWidth,innerHeight);stars.forEach(s=>{ctx.globalAlpha=.25+.5*(.5+.5*Math.sin(t/900+s.p));ctx.fillStyle="#f4efd9";ctx.beginPath();ctx.arc(s.x*innerWidth,s.y*innerHeight,s.r,0,7);ctx.fill()});ctx.globalAlpha=1;requestAnimationFrame(ambience)}requestAnimationFrame(ambience);
+function pixel(){ac.clearRect(0,0,16,16);let [b,a]=palette();ac.fillStyle=b;ac.fillRect(4,4,8,9);ac.fillRect(3,6,10,5);ac.fillStyle=a;ac.fillRect(5,2,6,3);ac.fillRect(4,3,8,1);ac.fillRect(3,12,4,3);ac.fillRect(9,12,4,3);ac.fillStyle="#f3d9bd";ac.fillRect(5,5,6,5);ac.fillStyle="#14221f";let eyes=face===1?[[6,6],[10,6]]:[[6,7],[10,7]];eyes.forEach(([x,y])=>ac.fillRect(x,y,1,1));if(face===0){ac.fillRect(7,9,3,1)}if(face===1){ac.fillRect(7,8,1,1);ac.fillRect(8,9,2,1);ac.fillRect(10,8,1,1)}if(face===2){ac.fillRect(7,9,1,1);ac.fillRect(9,9,1,1)}if(face===3){ac.fillRect(7,8,3,1)}}
+pixel();["bodyColor","accentColor"].forEach(id=>$("#"+id).addEventListener("input",()=>{uploaded=null;pixel()}));
+document.querySelectorAll("[data-face]").forEach(b=>b.onclick=()=>{face=+b.dataset.face;uploaded=null;document.querySelectorAll("[data-face]").forEach(x=>x.classList.remove("active"));b.classList.add("active");pixel()});document.querySelector("[data-face='0']").classList.add("active");
+$("#upload").onchange=e=>{let f=e.target.files[0];if(!f)return;let im=new Image();im.onload=()=>{ac.clearRect(0,0,16,16);ac.imageSmoothingEnabled=false;let side=Math.min(im.width,im.height),sx=(im.width-side)/2,sy=(im.height-side)/2;ac.drawImage(im,sx,sy,side,side,0,0,16,16);uploaded=av.toDataURL()};im.src=URL.createObjectURL(f)};
+function addGuest(data,isMe=false){let g=document.createElement("div");g.className="guest";g.innerHTML='<span class="bubble"></span><img class="sprite"><span class="shadow"></span>';g.querySelector(".bubble").textContent=data.name||"guest";g.querySelector("img").src=data.image;world.appendChild(g);let obj={el:g,x:isMe?innerWidth*.48:Math.random()*innerWidth,v:(Math.random()>.5?1:-1)*(.18+Math.random()*.18),phase:Math.random()*8};guests.push(obj);return obj}
+function animateGuests(t){let w=innerWidth;guests.forEach((g,i)=>{g.x+=g.v;if(g.x>w-70){g.x=w-70;g.v*=-1}if(g.x<0){g.x=0;g.v*=-1}let sway=Math.sin(t/1200+g.phase)*5;g.el.style.transform='translate3d('+g.x+'px,'+sway+'px,0) scaleX('+(g.v<0?-1:1)+')';g.el.querySelector(".bubble").style.transform='scaleX('+(g.v<0?-1:1)+')'});requestAnimationFrame(animateGuests)}requestAnimationFrame(animateGuests);
+function saveAndJoin(e){e?.preventDefault();let data={name:$("#name").value.trim()||"guest",image:uploaded||av.toDataURL()};localStorage.setItem("waiting-avatar",JSON.stringify(data));if(me){me.el.querySelector("img").src=data.image;me.el.querySelector(".bubble").textContent=data.name}else me=addGuest(data,true);dialog.close()}
+$("#joinBtn").onclick=saveAndJoin;$("#editBtn").onclick=()=>dialog.showModal();
+let saved;try{saved=JSON.parse(localStorage.getItem("waiting-avatar"))}catch{}if(saved)me=addGuest(saved,true);else setTimeout(()=>dialog.showModal(),500);
+// Decorative roaming guests make the room feel alive; real cross-device presence can be added with a realtime backend.
+function npcImage(body,accent,faceNo){$("#bodyColor").value=body;$("#accentColor").value=accent;face=faceNo;pixel();return av.toDataURL()}
+[["Moss","#006747","#f0c808",1],["Luna","#7c3aed","#00b388",2],["Boo","#542568","#e9d5ff",0]].forEach((n,i)=>{let img=npcImage(n[1],n[2],n[3]);addGuest({name:n[0],image:img})});
+if(saved){$("#bodyColor").value="#7c3aed";$("#accentColor").value="#00b388";face=0;pixel()}
+$("#guestCount").textContent=(guests.length)+" guests are wandering around";
